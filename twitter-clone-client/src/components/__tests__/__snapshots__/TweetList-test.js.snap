@@ -1,0 +1,276 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TweetList renders render fixed header 1`] = `
+<View
+  style={
+    Object {
+      "backgroundColor": "white",
+      "borderBottomColor": "#CCC",
+      "borderBottomWidth": 1,
+      "paddingHorizontal": 2,
+    }
+  }
+>
+  <Text
+    style={
+      Object {
+        "fontSize": 22,
+        "fontWeight": "700",
+        "marginBottom": 3,
+        "marginTop": 10,
+        "paddingBottom": 3,
+        "paddingLeft": 5,
+      }
+    }
+    theme={
+      Object {
+        "colors": Object {
+          "disabled": "hsl(208, 8%, 90%)",
+          "divider": "#bcbbc1",
+          "error": "#ff190c",
+          "grey0": "#393e42",
+          "grey1": "#43484d",
+          "grey2": "#5e6977",
+          "grey3": "#86939e",
+          "grey4": "#bdc6cf",
+          "grey5": "#e1e8ee",
+          "greyOutline": "#bbb",
+          "platform": Object {
+            "android": Object {
+              "error": "#f44336",
+              "primary": "#2196f3",
+              "secondary": "#9C27B0",
+              "success": "#4caf50",
+              "warning": "#ffeb3b",
+            },
+            "ios": Object {
+              "error": "#ff3b30",
+              "primary": "#007aff",
+              "secondary": "#5856d6",
+              "success": "#4cd964",
+              "warning": "#ffcc00",
+            },
+          },
+          "primary": "#2089dc",
+          "searchBg": "#303337",
+          "secondary": "#8F0CE8",
+          "success": "#52c41a",
+          "warning": "#faad14",
+        },
+      }
+    }
+  >
+    Title
+  </Text>
+  <View
+    style={
+      Object {
+        "backgroundColor": "#ccc",
+        "height": 1,
+        "width": "100%",
+      }
+    }
+  />
+</View>
+`;
+
+exports[`TweetList renders render item 1`] = `
+<TweetCard
+  name="Name"
+/>
+`;
+
+exports[`TweetList renders render separator 1`] = `
+<View
+  style={
+    Object {
+      "backgroundColor": "#ccc",
+      "height": 1,
+      "marginVertical": 5,
+      "width": "100%",
+    }
+  }
+/>
+`;
+
+exports[`TweetList renders the title 1`] = `
+<View
+  style={
+    Object {
+      "backgroundColor": "#FFF",
+      "borderLeftColor": "#e6ecf0",
+      "borderLeftWidth": 1,
+      "borderRightColor": "#e6ecf0",
+      "borderRightWidth": 1,
+      "flex": 1,
+      "flexDirection": "row",
+      "maxWidth": 600,
+    }
+  }
+>
+  <RCTScrollView
+    ItemSeparatorComponent={[Function]}
+    ListHeaderComponent={[Function]}
+    disableVirtualization={false}
+    getItem={[Function]}
+    getItemCount={[Function]}
+    horizontal={false}
+    initialNumToRender={10}
+    keyExtractor={[Function]}
+    maxToRenderPerBatch={10}
+    numColumns={1}
+    onContentSizeChange={[Function]}
+    onEndReached={[Function]}
+    onEndReachedThreshold={0}
+    onLayout={[Function]}
+    onMomentumScrollEnd={[Function]}
+    onScroll={[Function]}
+    onScrollBeginDrag={[Function]}
+    onScrollEndDrag={[Function]}
+    removeClippedSubviews={false}
+    renderItem={[Function]}
+    scrollEventThrottle={50}
+    stickyHeaderIndices={
+      Array [
+        0,
+      ]
+    }
+    updateCellsBatchingPeriod={50}
+    viewabilityConfigCallbackPairs={Array []}
+    windowSize={21}
+  >
+    <View>
+      <View
+        onLayout={[Function]}
+      >
+        <View
+          style={
+            Object {
+              "backgroundColor": "white",
+              "borderBottomColor": "#CCC",
+              "borderBottomWidth": 1,
+              "paddingHorizontal": 2,
+            }
+          }
+        >
+          <Text
+            style={
+              Object {
+                "fontSize": 22,
+                "fontWeight": "700",
+                "marginBottom": 3,
+                "marginTop": 10,
+                "paddingBottom": 3,
+                "paddingLeft": 5,
+              }
+            }
+            theme={
+              Object {
+                "colors": Object {
+                  "disabled": "hsl(208, 8%, 90%)",
+                  "divider": "#bcbbc1",
+                  "error": "#ff190c",
+                  "grey0": "#393e42",
+                  "grey1": "#43484d",
+                  "grey2": "#5e6977",
+                  "grey3": "#86939e",
+                  "grey4": "#bdc6cf",
+                  "grey5": "#e1e8ee",
+                  "greyOutline": "#bbb",
+                  "platform": Object {
+                    "android": Object {
+                      "error": "#f44336",
+                      "primary": "#2196f3",
+                      "secondary": "#9C27B0",
+                      "success": "#4caf50",
+                      "warning": "#ffeb3b",
+                    },
+                    "ios": Object {
+                      "error": "#ff3b30",
+                      "primary": "#007aff",
+                      "secondary": "#5856d6",
+                      "success": "#4cd964",
+                      "warning": "#ffcc00",
+                    },
+                  },
+                  "primary": "#2089dc",
+                  "searchBg": "#303337",
+                  "secondary": "#8F0CE8",
+                  "success": "#52c41a",
+                  "warning": "#faad14",
+                },
+              }
+            }
+          >
+            Title
+          </Text>
+          <View
+            style={
+              Object {
+                "backgroundColor": "#ccc",
+                "height": 1,
+                "width": "100%",
+              }
+            }
+          />
+        </View>
+      </View>
+    </View>
+  </RCTScrollView>
+</View>
+`;
+
+exports[`TweetList renders without the title 1`] = `
+<View
+  style={
+    Object {
+      "backgroundColor": "#FFF",
+      "borderLeftColor": "#e6ecf0",
+      "borderLeftWidth": 1,
+      "borderRightColor": "#e6ecf0",
+      "borderRightWidth": 1,
+      "flex": 1,
+      "flexDirection": "row",
+      "maxWidth": 600,
+    }
+  }
+>
+  <RCTScrollView
+    ItemSeparatorComponent={[Function]}
+    ListHeaderComponent={[Function]}
+    disableVirtualization={false}
+    getItem={[Function]}
+    getItemCount={[Function]}
+    horizontal={false}
+    initialNumToRender={10}
+    keyExtractor={[Function]}
+    maxToRenderPerBatch={10}
+    numColumns={1}
+    onContentSizeChange={[Function]}
+    onEndReached={[Function]}
+    onEndReachedThreshold={0}
+    onLayout={[Function]}
+    onMomentumScrollEnd={[Function]}
+    onScroll={[Function]}
+    onScrollBeginDrag={[Function]}
+    onScrollEndDrag={[Function]}
+    removeClippedSubviews={false}
+    renderItem={[Function]}
+    scrollEventThrottle={50}
+    stickyHeaderIndices={
+      Array [
+        0,
+      ]
+    }
+    updateCellsBatchingPeriod={50}
+    viewabilityConfigCallbackPairs={Array []}
+    windowSize={21}
+  >
+    <View>
+      <View
+        onLayout={[Function]}
+      />
+    </View>
+  </RCTScrollView>
+</View>
+`;

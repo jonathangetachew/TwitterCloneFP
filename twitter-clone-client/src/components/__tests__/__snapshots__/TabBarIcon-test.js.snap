@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TabBarIcon renders the icon focused 1`] = `
+<Ionicons
+  color="#2f95dc"
+  size={26}
+  style={
+    Object {
+      "marginBottom": -3,
+    }
+  }
+/>
+`;
+
+exports[`TabBarIcon renders the icon normal 1`] = `
+<Ionicons
+  color="#ccc"
+  size={26}
+  style={
+    Object {
+      "marginBottom": -3,
+    }
+  }
+/>
+`;

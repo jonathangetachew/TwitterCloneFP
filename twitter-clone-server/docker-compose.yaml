@@ -1,0 +1,14 @@
+version: "3"
+services:
+  mongodb:
+    image: mongo
+    container_name: "twitter-clone-mongo2"
+    ports:
+      - 27017:27017
+    command: --smallfiles
+  app:
+    image: twitter-clone-server
+    ports:
+      - 8080:8080
+    links:
+      - mongodb
