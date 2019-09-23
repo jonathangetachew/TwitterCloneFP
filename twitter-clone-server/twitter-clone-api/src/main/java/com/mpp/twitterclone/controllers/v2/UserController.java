@@ -17,6 +17,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -42,14 +43,21 @@ public class UserController {
 		this.userResourceAssembler = userResourceAssembler;
 	}
 
+	///> Pure Functions
+	protected BiFunction<User, UserResourceAssembler, Resource<User>> convertUserToResource =
+			(user, resourceAssembler) -> resourceAssembler.toResource(user);
+
+	protected BiFunction<List<User>, UserResourceAssembler, List<Resource<User>>> convertUsersToResources =
+			(users, resourceAssembler) -> users.stream()
+					.map(user -> convertUserToResource.apply(user, resourceAssembler))
+					.collect(Collectors.toList());
+
 	///> Get Mappings
 	@ApiOperation(value = "Get all Users",
 			notes = "This operation can only be done by an ADMIN.")
 	@GetMapping
 	public Resources<Resource<User>> getAllUsers() {
-		List<Resource<User>> users = userService.findAll().stream()
-				.map(userResourceAssembler::toResource)
-				.collect(Collectors.toList());
+		List<Resource<User>> users = convertUsersToResources.apply(userService.findAll(), userResourceAssembler);
 
 		return new Resources<>(users,
 				linkTo(methodOn(UserController.class).getAllUsers()).withSelfRel());
@@ -58,15 +66,15 @@ public class UserController {
 	@ApiOperation(value = "Get a User by Username")
 	@GetMapping("/{username}")
 	public Resource<User> getUserByUsername(@PathVariable String username) {
-		return userResourceAssembler.toResource(userService.findUserByUsername(username));
+		return convertUserToResource.apply(userService.findUserByUsername(username), userResourceAssembler);
 	}
 
 	@ApiOperation(value = "Get Follower List by User ID")
 	@GetMapping("/{userId}/followers")
 	public Resources<Resource<User>> getAllFollowersById(@PathVariable String userId) {
-		List<Resource<User>> users = userService.findAllFollowers(userId).stream()
-				.map(userResourceAssembler::toResource)
-				.collect(Collectors.toList());
+		List<Resource<User>> users = convertUsersToResources.apply(
+				userService.findAllFollowers(userId), userResourceAssembler
+			);
 
 		return new Resources<>(users,
 				linkTo(methodOn(UserController.class).getAllFollowersById(userId)).withSelfRel());
@@ -75,9 +83,9 @@ public class UserController {
 	@ApiOperation(value = "Get Following List by User ID")
 	@GetMapping("/{userId}/following")
 	public Resources<Resource<User>> getAllFollowingById(@PathVariable String userId) {
-		List<Resource<User>> users = userService.findAllFollowing(userId).stream()
-				.map(userResourceAssembler::toResource)
-				.collect(Collectors.toList());
+		List<Resource<User>> users = convertUsersToResources.apply(
+				userService.findAllFollowing(userId), userResourceAssembler
+			);
 
 		return new Resources<>(users,
 				linkTo(methodOn(UserController.class).getAllFollowingById(userId)).withSelfRel());
@@ -88,7 +96,7 @@ public class UserController {
 					notes = "Password won't be encrypted. Use signup action instead.")
 	@PostMapping("/create")
 	public ResponseEntity<Resource<User>> createUser(@RequestBody User user) throws URISyntaxException {
-		Resource<User> userResource = userResourceAssembler.toResource(userService.create(user));
+		Resource<User> userResource = convertUserToResource.apply(userService.create(user), userResourceAssembler);
 
 		return ResponseEntity
 				.created(new URI(userResource.getId().expand().getHref()))
@@ -98,8 +106,10 @@ public class UserController {
 	@ApiOperation(value = "Follow a User",
 					notes = "This operation can only be done by an authenticated user.")
 	@PostMapping("/{id}/follow")
-	public ResponseEntity<Resource<User>> followUser(@PathVariable String id, Principal principal) throws URISyntaxException {
-		Resource<User> userResource = userResourceAssembler.toResource(userService.followUser(id, "test"));
+	public ResponseEntity<Resource<User>> followUser(@PathVariable String id) throws URISyntaxException {
+		Resource<User> userResource = convertUserToResource.apply(
+				userService.followUser(id, "test"), userResourceAssembler
+			);
 
 		return ResponseEntity
 				.created(new URI(userResource.getId().expand().getHref()))
@@ -111,9 +121,8 @@ public class UserController {
 					notes = "This operation can only be done by the owner.")
 	@PutMapping("/{id}/update")
 	public ResponseEntity<Resource<User>> updateUser(@RequestBody User user,
-	                                                 @PathVariable String id,
-	                                                 Principal principal) throws URISyntaxException {
-		Resource<User> userResource = userResourceAssembler.toResource(userService.update(user, id));
+	                                                 @PathVariable String id) throws URISyntaxException {
+		Resource<User> userResource = convertUserToResource.apply(userService.update(user, id), userResourceAssembler);
 
 		return ResponseEntity
 				.created(new URI(userResource.getId().expand().getHref()))
@@ -124,7 +133,7 @@ public class UserController {
 	@ApiOperation(value = "Delete User by ID",
 					notes = "This operation can only be done by the owner.")
 	@DeleteMapping("/{id}/remove")
-	public ResponseEntity<?> deleteUser(@PathVariable String id, Principal principal) {
+	public ResponseEntity<?> deleteUser(@PathVariable String id) {
 		userService.deleteById(id);
 
 		Map<String, String> responseMessage = new HashMap<>();

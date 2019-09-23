@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -42,14 +42,21 @@ public class TweetController {
 		this.tweetResourceAssembler = tweetResourceAssembler;
 	}
 
+	///> Pure Functions
+	protected BiFunction<Tweet, TweetResourceAssembler, Resource<Tweet>> convertTweetToResource =
+			(tweet, resourceAssembler) -> resourceAssembler.toResource(tweet);
+
+	protected BiFunction<List<Tweet>, TweetResourceAssembler, List<Resource<Tweet>>> convertTweetsToResources =
+			(tweets, resourceAssembler) -> tweets.stream()
+				.map(tweet -> convertTweetToResource.apply(tweet, resourceAssembler))
+				.collect(Collectors.toList());
+
 	///> Get Mappings
 	@ApiOperation(value = "Get all Tweets",
 					notes = "This operation can only be done by an ADMIN.")
 	@GetMapping
 	public Resources<Resource<Tweet>> getAllTweets() {
-		List<Resource<Tweet>> tweets = tweetService.findAll().stream()
-				.map(tweetResourceAssembler::toResource)
-				.collect(Collectors.toList());
+		List<Resource<Tweet>> tweets = convertTweetsToResources.apply(tweetService.findAll(), tweetResourceAssembler);
 
 		return new Resources<>(tweets,
 				linkTo(methodOn(TweetController.class).getAllTweets()).withSelfRel());
@@ -59,9 +66,9 @@ public class TweetController {
 					notes = "It can be done by any user.")
 	@GetMapping("/user/{username}")
 	public Resources<Resource<Tweet>> getAllTweetsByUsername(@PathVariable String username) {
-		List<Resource<Tweet>> tweets = tweetService.findAllTweetsByUsername(username).stream()
-				.map(tweetResourceAssembler::toResource)
-				.collect(Collectors.toList());
+		List<Resource<Tweet>> tweets = convertTweetsToResources.apply(
+				tweetService.findAllTweetsByUsername(username), tweetResourceAssembler
+			);
 
 		return new Resources<>(tweets,
 				linkTo(methodOn(TweetController.class).getAllTweetsByUsername(username)).withSelfRel());
@@ -70,15 +77,15 @@ public class TweetController {
 	@ApiOperation(value = "Get Tweet by ID")
 	@GetMapping("/{id}")
 	public Resource<Tweet> getTweetById(@PathVariable String id) {
-		return tweetResourceAssembler.toResource(tweetService.findById(id));
+		return convertTweetToResource.apply(tweetService.findById(id), tweetResourceAssembler);
 	}
 
 	@ApiOperation(value = "This will get a list of all replies for a given tweet.")
 	@GetMapping("/{id}/replies")
 	public Resources<Resource<Tweet>> getTweetReplies(@PathVariable String id) {
-		List<Resource<Tweet>> tweets = tweetService.findAllReplies(id).stream()
-				.map(tweetResourceAssembler::toResource)
-				.collect(Collectors.toList());
+		List<Resource<Tweet>> tweets = convertTweetsToResources.apply(
+				tweetService.findAllReplies(id), tweetResourceAssembler
+			);
 
 		return new Resources<>(tweets,
 				linkTo(methodOn(TweetController.class).getTweetReplies(id)).withSelfRel());
@@ -89,7 +96,7 @@ public class TweetController {
 					notes = "This operation can only be done by an authenticated user.")
 	@PostMapping("/create")
 	public ResponseEntity<Resource<Tweet>> createTweet(@RequestBody Tweet tweet) throws URISyntaxException {
-		Resource<Tweet> tweetResource = tweetResourceAssembler.toResource(tweetService.create(tweet));
+		Resource<Tweet> tweetResource = convertTweetToResource.apply(tweetService.create(tweet),tweetResourceAssembler);
 
 		return ResponseEntity
 				.created(new URI(tweetResource.getId().expand().getHref()))
@@ -101,27 +108,22 @@ public class TweetController {
 	@PostMapping("/{originalTweetId}/reply")
 	public ResponseEntity<Resource<Tweet>> reply(@RequestBody Tweet replyTweet,
 	                                             @PathVariable String originalTweetId) throws URISyntaxException {
-		Resource<Tweet> tweetResource = tweetResourceAssembler.toResource(tweetService.replyToTweet(replyTweet, originalTweetId));
+		Resource<Tweet> tweetResource = convertTweetToResource.apply(
+				tweetService.replyToTweet(replyTweet, originalTweetId), tweetResourceAssembler
+			);
 
 		return ResponseEntity
 				.created(new URI(tweetResource.getId().expand().getHref()))
 				.body(tweetResource);
 	}
 
-//	@PostMapping("/{id}/retweet")
-//	public ResponseEntity<Resource<Tweet>> retweet(@PathVariable String id) throws URISyntaxException {
-//		Resource<Tweet> tweetResource = tweetResourceAssembler.toResource(tweetService.retweetTweet(id, "test"));
-//
-//		return ResponseEntity
-//				.created(new URI(tweetResource.getId().expand().getHref()))
-//				.body(tweetResource);
-//	}
-
 	@ApiOperation(value = "Favorite a Tweet",
 					notes = "This operation can only be done by an authenticated user.")
 	@PostMapping("/{id}/favorite")
 	public ResponseEntity<Resource<Tweet>> favorite(@PathVariable String id) throws URISyntaxException {
-		Resource<Tweet> tweetResource = tweetResourceAssembler.toResource(tweetService.favoriteTweet(id, "test"));
+		Resource<Tweet> tweetResource = convertTweetToResource.apply(
+				tweetService.favoriteTweet(id, "test"), tweetResourceAssembler
+			);
 
 		return ResponseEntity
 				.created(new URI(tweetResource.getId().expand().getHref()))
@@ -133,9 +135,10 @@ public class TweetController {
 			notes = "This operation can only be done by an authenticated user.")
 	@PutMapping("/{originalTweetId}/update")
 	public ResponseEntity<Resource<Tweet>> updateTweet(@RequestBody Tweet newTweet,
-	                                                   @PathVariable String originalTweetId,
-	                                                   Principal principal) throws URISyntaxException {
-		Resource<Tweet> tweetResource = tweetResourceAssembler.toResource(tweetService.update(newTweet, originalTweetId));
+	                                                   @PathVariable String originalTweetId) throws URISyntaxException {
+		Resource<Tweet> tweetResource = convertTweetToResource.apply(
+				tweetService.update(newTweet, originalTweetId), tweetResourceAssembler
+			);
 
 		return ResponseEntity
 				.created(new URI(tweetResource.getId().expand().getHref()))
@@ -146,7 +149,7 @@ public class TweetController {
 	@ApiOperation(value = "Delete Tweet by ID",
 			notes = "This operation can only be done by the owner of the tweet.")
 	@DeleteMapping("/{tweetId}/remove")
-	public ResponseEntity<?> deleteTweet(@PathVariable String tweetId, Principal principal) {
+	public ResponseEntity<?> deleteTweet(@PathVariable String tweetId) {
 		tweetService.deleteById(tweetId);
 
 		Map<String, String> responseMessage = new HashMap<>();
