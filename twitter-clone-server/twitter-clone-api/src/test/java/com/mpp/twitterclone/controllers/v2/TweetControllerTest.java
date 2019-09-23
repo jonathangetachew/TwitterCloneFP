@@ -47,6 +47,7 @@ class TweetControllerTest {
 	public static final String ID = "tweet1";
 	public static final String TWEET_TEXT_CONTENT = "Hello";
 	public static final String USERNAME = "user1";
+	public static final int FAVORITE_COUNT = 5;
 
 	@MockBean
 	TweetService tweetService;
@@ -128,6 +129,42 @@ class TweetControllerTest {
 				.andExpect(jsonPath("$._embedded.tweets[0].content[0].data", is(TWEET_TEXT_CONTENT)))
 				// Test Links
 				.andExpect(jsonPath("$._links.self.href", is(endsWith(TweetController.BASE_URL + "/user/" + USERNAME))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.self.href", is(endsWith(TweetController.BASE_URL + "/" + ID))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.tweets.href", is(endsWith(TweetController.BASE_URL))));
+
+	}
+
+	@Test
+	void getTopKFavoritedTweetsByUsername_ValidRequest_ListOfTweets() throws Exception {
+		//given
+		int k = 2;
+
+		Tweet tweet1 = Tweet.builder().id(ID).owner(USERNAME).favoriteCount(FAVORITE_COUNT)
+							.content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT))).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").owner(USERNAME).favoriteCount(3)
+							.content(Arrays.asList(new TextContent("World"))).build();
+
+		List<Tweet> sentTweets = Arrays.asList(tweet1, tweet2);
+
+		when(tweetService.findAllTweetsByUsername(anyString())).thenReturn(sentTweets);
+
+		//when
+		mockMvc.perform(get(TweetController.BASE_URL + "/user/" + USERNAME + "/top/" + k)
+				.contentType(MediaType.APPLICATION_JSON))
+				//then
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+				// Test Content
+				.andExpect(jsonPath("$._embedded.tweets", hasSize(k)))
+				.andExpect(jsonPath("$._embedded.tweets[0].id", is(ID)))
+				.andExpect(jsonPath("$._embedded.tweets[0].owner", is(USERNAME)))
+				.andExpect(jsonPath("$._embedded.tweets[0].favoriteCount", is(FAVORITE_COUNT)))
+				.andExpect(jsonPath("$._embedded.tweets[0].content", hasSize(1)))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].type", is("text")))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].data", is(TWEET_TEXT_CONTENT)))
+				// Test Links
+				.andExpect(jsonPath("$._links.self.href",
+						is(endsWith(TweetController.BASE_URL + "/user/" + USERNAME + "/top/" + k))))
 				.andExpect(jsonPath("$._embedded.tweets[0]._links.self.href", is(endsWith(TweetController.BASE_URL + "/" + ID))))
 				.andExpect(jsonPath("$._embedded.tweets[0]._links.tweets.href", is(endsWith(TweetController.BASE_URL))));
 

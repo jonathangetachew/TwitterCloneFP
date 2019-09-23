@@ -35,8 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UserController.class)
 class UserControllerTest {
 
-	public static final String USERNAME = "john";
-
 	@TestConfiguration
 	static class UserControllerTestContextConfiguration {
 		@Bean
@@ -46,6 +44,8 @@ class UserControllerTest {
 	}
 
 	public static final String ID = "user1";
+	public static final String USERNAME = "john";
+	public static final int FOLLOWERS_COUNT = 5;
 
 	@MockBean
 	UserService userService;
@@ -94,7 +94,37 @@ class UserControllerTest {
 				.andExpect(MockMvcResultMatchers.jsonPath("$._embedded.users[0].username", is(USERNAME)))
 				// Test Links
 				.andExpect(jsonPath("$._links.self.href", is(endsWith(UserController.BASE_URL))))
-				.andExpect(jsonPath("$._embedded.users[0]._links.self.href", is(endsWith(UserController.BASE_URL + "/" + USERNAME))))
+				.andExpect(jsonPath("$._embedded.users[0]._links.self.href",
+						is(endsWith(UserController.BASE_URL + "/" + USERNAME))))
+				.andExpect(jsonPath("$._embedded.users[0]._links.users.href", is(endsWith(UserController.BASE_URL))));
+	}
+
+	@Test
+	void getTopKMostFollowedUsers_ValidRequest_ListOfUsers() throws Exception {
+		//given
+		int k = 2;
+
+		User user1 = User.builder().id(ID).username(USERNAME).followersCount(FOLLOWERS_COUNT).build();
+		User user2 = User.builder().id("user2").username("doe").followersCount(3).build();
+
+		List<User> sentUsers = Arrays.asList(user1, user2);
+
+		when(userService.findAll()).thenReturn(sentUsers);
+
+		//when
+		mockMvc.perform(get(UserController.BASE_URL + "/top/" + k).contentType(MediaType.APPLICATION_JSON))
+				//then
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+				// Test Content
+				.andExpect(jsonPath("$._embedded.users", hasSize(2)))
+				.andExpect(MockMvcResultMatchers.jsonPath("$._embedded.users[0].id", is(ID)))
+				.andExpect(MockMvcResultMatchers.jsonPath("$._embedded.users[0].username", is(USERNAME)))
+				.andExpect(MockMvcResultMatchers.jsonPath("$._embedded.users[0].followersCount", is(FOLLOWERS_COUNT)))
+				// Test Links
+				.andExpect(jsonPath("$._links.self.href", is(endsWith(UserController.BASE_URL + "/top/" + k))))
+				.andExpect(jsonPath("$._embedded.users[0]._links.self.href",
+						is(endsWith(UserController.BASE_URL + "/" + USERNAME))))
 				.andExpect(jsonPath("$._embedded.users[0]._links.users.href", is(endsWith(UserController.BASE_URL))));
 	}
 
