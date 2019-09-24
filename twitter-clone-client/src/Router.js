@@ -3,14 +3,13 @@ import { Switch, Route, Router } from "react-router";
 import { createBrowserHistory } from "history";
 import "./res/main.css";
 import routes from "./config/routes";
-
-import HomeMenu from "./pages/Home";
+import Menu from "./components/Menu";
 
 const history = createBrowserHistory();
+const width = 250;
 
 const Page = (props) => {
   const { Component, data} = props;
-  console.log("ROUTE", data);
   return (
     <div
       style={{
@@ -20,8 +19,9 @@ const Page = (props) => {
     >
       <div
         style={{
-          width: 200,
+          width,
           position: "fixed",
+          padding: 10,
           zIndex: 10,
           top: 0,
           left: 0,
@@ -30,14 +30,14 @@ const Page = (props) => {
           overflowY: "auto"
         }}
       >
-        <HomeMenu />
+        <Menu />
       </div>
       <div
         style={{
           position: "relative",
           overflow: "auto",
-          left: 200,
-          paddingRight: 200,
+          left: width,
+          paddingRight: width,
           display: "flex",
           height:'100vh',
         }}

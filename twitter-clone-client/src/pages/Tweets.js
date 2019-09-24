@@ -12,17 +12,13 @@ export default class TweetPage extends React.PureComponent {
 
   componentDidMount() {
     axios.get(this.props.route).then(({ _embedded }) => {
-      const { tweets } = _embedded;
+      const { tweets } = _embedded || { tweets: [] };
       console.log("DATA", tweets[0]);
       this.setState({ data: tweets });
     });
   }
 
   render() {
-    return (
-      <DynamicTable
-        data={this.state.data}        
-      />
-    );
+    return <DynamicTable data={this.state.data} />;
   }
 }

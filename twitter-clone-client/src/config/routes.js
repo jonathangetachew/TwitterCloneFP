@@ -33,9 +33,21 @@ export default [
         component: TweetsPage
     },
     {
-        title:"Get tweets from JOHN",
+        title:"Get John's tweets",
         exact: true,
         path:"/tweets/user/john",
+        component: TweetsPage
+    },
+    {
+        title:"Find K(5) Latest Tweets",
+        exact: true,
+        path:"/tweets/new/5",
+        component: TweetsPage
+    },
+    {
+        title:"Find Most Replied Tweets",
+        exact: true,
+        path:"/tweets/mostreplied",
         component: TweetsPage
     }
 ]
