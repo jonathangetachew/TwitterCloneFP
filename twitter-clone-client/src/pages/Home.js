@@ -1,17 +1,20 @@
 import React from "react";
-import { Alert } from "react-bootstrap";
-import routes from "../config/routes";
+import Menu from "../components/Menu";
 
 function Home() {
   return (
-    <div>
-      {routes
-        .filter(route => route.path !== "/")
-        .map((route, index) => (
-          <Alert key={index} variant="primary">
-            <Alert.Link href={route.path}>{route.title}</Alert.Link>
-          </Alert>
-        ))}
+    <div
+      style={{
+        display:'flex',
+        justifyContent: "center",
+        alignItems: "center",
+        height:'100vh',
+        flex: 1
+      }}
+    >
+      <div>
+        <Menu />
+      </div>
     </div>
   );
 }

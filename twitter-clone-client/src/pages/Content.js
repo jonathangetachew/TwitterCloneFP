@@ -2,7 +2,7 @@ import React from "react";
 import axios from "../services/axios.instance";
 import DynamicTable from "../components/DynamicTable";
 
-export default class TweetPage extends React.PureComponent {
+export default class ContentPage extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -12,17 +12,13 @@ export default class TweetPage extends React.PureComponent {
 
   componentDidMount() {
     axios.get(this.props.route).then(({ _embedded }) => {
-      const { tweets } = _embedded;
-      console.log("DATA", tweets[0]);
-      this.setState({ data: tweets });
+      const result = _embedded || {};
+      const data = result[this.props.index] || [];
+      this.setState({ data });
     });
   }
 
   render() {
-    return (
-      <DynamicTable
-        data={this.state.data}        
-      />
-    );
+    return <DynamicTable data={this.state.data} />;
   }
 }
