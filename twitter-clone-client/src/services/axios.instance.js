@@ -5,9 +5,7 @@ const options = {
   timeout: 1000,
   headers: {
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "true"
   }
 };
 
-const server = axios.create(options);
-export default server;
+export default axios.create(options);
