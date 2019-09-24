@@ -8,13 +8,11 @@ function Home() {
         display:'flex',
         justifyContent: "center",
         alignItems: "center",
-        height:'100vh',
-        flex: 1
+        flex: 1,
+        flexDirection:'row'
       }}
     >
-      <div>
-        <Menu />
-      </div>
+      <Menu />
     </div>
   );
 }
