@@ -85,7 +85,7 @@
                 <version>2.22.2</version>
             </plugin>
         </plugins>
-        <finalName>twitter-clone-v1</finalName>
+        <finalName>twitter-clone-server-v2</finalName>
     </build>
 
 </project>
