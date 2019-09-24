@@ -2,6 +2,7 @@ package com.mpp.twitterclone.controllers.v2;
 
 import com.mpp.twitterclone.controllers.v2.functions.TweetFunctions;
 import com.mpp.twitterclone.controllers.v2.resourceassemblers.TweetResourceAssembler;
+import com.mpp.twitterclone.enums.TweetSource;
 import com.mpp.twitterclone.model.Tweet;
 import com.mpp.twitterclone.services.TweetService;
 import io.swagger.annotations.ApiOperation;
@@ -77,6 +78,77 @@ public class TweetController {
 
 		return new Resources<>(tweets,
 				linkTo(methodOn(TweetController.class).getTopKFavoritedTweetsByUsername(username, k)).withSelfRel());
+	}
+
+	@ApiOperation(value = "Find Tweets with Specified Source (MOBILE / WEB)",
+					notes = "It can be done by any user.")
+	@GetMapping("/source/{source}")
+	public Resources<Resource<Tweet>> getAllTweetsBySource(@PathVariable @Valid String source) {
+
+		List<Resource<Tweet>> tweets = TweetFunctions.convertTweetsToResources.apply(
+				TweetFunctions.findAllTweetsBySource.apply(tweetService.findAll(),
+						source.toUpperCase().equals(TweetSource.MOBILE.toString()) ? TweetSource.MOBILE : TweetSource.WEB),
+				tweetResourceAssembler
+			);
+
+		return new Resources<>(tweets,
+				linkTo(methodOn(TweetController.class).getAllTweetsBySource(source)).withSelfRel());
+	}
+
+	@ApiOperation(value = "Find K Oldest Tweets",
+					notes = "It can be done by any user.")
+	@GetMapping("/old/{k}")
+	public Resources<Resource<Tweet>> getKOldestTweets(@PathVariable @Valid Long k) {
+
+		List<Resource<Tweet>> tweets = TweetFunctions.convertTweetsToResources.apply(
+				TweetFunctions.findKOldestTweets.apply(tweetService.findAll(), k),
+				tweetResourceAssembler
+			);
+
+		return new Resources<>(tweets,
+				linkTo(methodOn(TweetController.class).getKOldestTweets(k)).withSelfRel());
+	}
+
+	@ApiOperation(value = "Find K Latest Tweets",
+					notes = "It can be done by any user.")
+	@GetMapping("/new/{k}")
+	public Resources<Resource<Tweet>> getKLatestTweets(@PathVariable @Valid Long k) {
+
+		List<Resource<Tweet>> tweets = TweetFunctions.convertTweetsToResources.apply(
+				TweetFunctions.findKLatestTweets.apply(tweetService.findAll(), k),
+				tweetResourceAssembler
+			);
+
+		return new Resources<>(tweets,
+				linkTo(methodOn(TweetController.class).getKLatestTweets(k)).withSelfRel());
+	}
+
+	@ApiOperation(value = "Find Most Replied Tweets by ParentId",
+					notes = "It can be done by any user.")
+	@GetMapping("/mostreplied")
+	public Resources<Resource<Tweet>> getMostRepliedTweetsByParentId() {
+
+		List<Resource<Tweet>> tweets = TweetFunctions.convertTweetsToResources.apply(
+				TweetFunctions.findMostRepliedTweetsByParentID.apply(tweetService.findAll()),
+				tweetResourceAssembler
+			);
+
+		return new Resources<>(tweets,
+				linkTo(methodOn(TweetController.class).getMostRepliedTweetsByParentId()).withSelfRel());
+	}
+
+	@ApiOperation(value = "Find Today's Tweets",
+					notes = "It can be done by any user.")
+	@GetMapping("/today")
+	public Resources<Resource<Tweet>> getTodayTweets() {
+
+		List<Resource<Tweet>> tweets = TweetFunctions.convertTweetsToResources.apply(
+				TweetFunctions.findTodayTweets.apply(tweetService.findAll()),
+				tweetResourceAssembler
+			);
+
+		return new Resources<>(tweets,
+				linkTo(methodOn(TweetController.class).getTodayTweets()).withSelfRel());
 	}
 
 	@ApiOperation(value = "Get Tweet by ID")

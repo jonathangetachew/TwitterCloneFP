@@ -3,6 +3,7 @@ package com.mpp.twitterclone.controllers.v2.functions;
 import com.mpp.twitterclone.controllers.v2.resourceassemblers.TweetResourceAssembler;
 import com.mpp.twitterclone.datatypes.QuadFunction;
 import com.mpp.twitterclone.datatypes.TriFunction;
+import com.mpp.twitterclone.enums.TweetSource;
 import com.mpp.twitterclone.model.Tweet;
 import com.mpp.twitterclone.model.User;
 import org.springframework.hateoas.Resource;
@@ -39,10 +40,16 @@ public class TweetFunctions {
 					.limit(k)
 					.collect(Collectors.toList());
 
+	// Find Tweets with Specified Source
+	public static BiFunction<List<Tweet>, TweetSource, List<Tweet>> findAllTweetsBySource =
+			(tweets, tweetSource) -> tweets.stream()
+					.filter(tweet -> tweet.getSource() != null)
+					.filter(tweet -> tweet.getSource().equals(tweetSource))
+					.collect(Collectors.toList());
+
 	// Find Oldest Tweets
-	public static BiFunction<List<Tweet>, Long, List<Tweet>> findOldestTweets =
-			(tweets, k) -> tweets
-					.stream()
+	public static BiFunction<List<Tweet>, Long, List<Tweet>> findKOldestTweets =
+			(tweets, k) -> tweets.stream()
 					.sorted(Comparator.comparing(Tweet::getCreatedAt))
 					.limit(k)
 					.collect(Collectors.toList());

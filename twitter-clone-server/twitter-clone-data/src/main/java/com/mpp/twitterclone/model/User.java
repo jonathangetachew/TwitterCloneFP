@@ -32,7 +32,7 @@ import java.util.*;
 @Builder
 @Document(collection = "users")
 @Relation(collectionRelation = "users") // To rename the default spring HATEOAS embedded list
-public class User implements UserDetails {
+public class User {
 	@Id
 	private String id;
 
@@ -96,40 +96,4 @@ public class User implements UserDetails {
 	@Builder.Default
 	private LocalDateTime createdAt = LocalDateTime.now();
 
-	private List<GrantedAuthority> getUserAuthority(Set<Role> userRoles) {
-		Set<GrantedAuthority> roles = new HashSet<>();
-		userRoles.forEach(role -> roles.add(new SimpleGrantedAuthority(role.getName().toString())));
-
-		return new ArrayList<>(roles);
-	}
-
-	@JsonIgnore
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return getUserAuthority(getRoles());
-	}
-
-	@JsonIgnore
-	@Override
-	public boolean isAccountNonExpired() {
-		return true;
-	}
-
-	@JsonIgnore
-	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
-
-	@JsonIgnore
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return true;
-	}
-
-	@JsonIgnore
-	@Override
-	public boolean isEnabled() {
-		return true;
-	}
 }

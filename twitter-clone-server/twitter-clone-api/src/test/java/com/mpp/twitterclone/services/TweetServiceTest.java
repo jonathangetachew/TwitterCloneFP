@@ -1,7 +1,6 @@
 package com.mpp.twitterclone.services;
 
 import com.mpp.twitterclone.exceptions.ResourceNotFoundException;
-import com.mpp.twitterclone.exceptions.UnauthorizedUserException;
 import com.mpp.twitterclone.model.Favorite;
 import com.mpp.twitterclone.model.Tweet;
 import com.mpp.twitterclone.model.tweetcontents.TextContent;

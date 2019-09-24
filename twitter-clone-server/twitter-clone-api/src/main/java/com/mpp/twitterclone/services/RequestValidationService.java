@@ -1,6 +1,5 @@
 package com.mpp.twitterclone.services;
 
-import com.mpp.twitterclone.exceptions.UnauthorizedUserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -37,16 +36,6 @@ public class RequestValidationService {
 		}
 
 		return null;
-
-	}
-
-	public void validateUser(Principal principal) {
-
-		try {
-			principal.getName();
-		} catch (Exception ex) {
-			throw new UnauthorizedUserException("User Token Authentication Failed");
-		}
 
 	}
 }

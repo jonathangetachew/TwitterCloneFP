@@ -3,6 +3,7 @@ package com.mpp.twitterclone.controllers.v2.functions;
 import com.mpp.twitterclone.controllers.v2.TweetController;
 import com.mpp.twitterclone.controllers.v2.resourceassemblers.TweetResourceAssembler;
 import com.mpp.twitterclone.controllers.v2.resourceassemblers.TweetResourceAssemblerImpl;
+import com.mpp.twitterclone.enums.TweetSource;
 import com.mpp.twitterclone.model.Tweet;
 import com.mpp.twitterclone.model.tweetcontents.TextContent;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,6 +99,26 @@ class TweetFunctionsTest {
 	}
 
 	@Test
+	void findAllTweetsBySource_ListOfTweets_TweetSource_KListOfTweets() {
+		//given
+		Tweet tweet1 = Tweet.builder().id(ID).content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT)))
+				.owner(USERNAME).favoriteCount(FAVORITE_COUNT).source(TweetSource.MOBILE).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner("test")
+				.favoriteCount(3).source(TweetSource.WEB).build();
+
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2);
+
+		//when
+		List<Tweet> returnedTweets = TweetFunctions.findAllTweetsBySource.apply(tweets, TweetSource.MOBILE);
+
+		//then
+		assertEquals(1, returnedTweets.size());
+		assertEquals(ID, returnedTweets.get(0).getId());
+		assertEquals(USERNAME, returnedTweets.get(0).getOwner());
+		assertEquals(FAVORITE_COUNT, returnedTweets.get(0).getFavoriteCount().intValue());
+	}
+
+	@Test
 	void findOldestTweets_ListOfTweets_KListOfTweets() {
 		//given
 		Long k = 2L;
@@ -110,7 +131,7 @@ class TweetFunctionsTest {
 		List<Tweet> tweets = Arrays.asList(tweet1, tweet2);
 
 		//when
-		List<Tweet> returnedTweets = TweetFunctions.findOldestTweets.apply(tweets, k);
+		List<Tweet> returnedTweets = TweetFunctions.findKOldestTweets.apply(tweets, k);
 
 		//then
 		assertEquals(k.intValue(), returnedTweets.size());

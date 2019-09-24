@@ -2,8 +2,6 @@ package com.mpp.twitterclone.controllers;
 
 import com.mpp.twitterclone.exceptions.ResourceExistsException;
 import com.mpp.twitterclone.exceptions.ResourceNotFoundException;
-import com.mpp.twitterclone.exceptions.UnauthorizedUserException;
-import com.mpp.twitterclone.exceptions.UserValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -42,29 +40,5 @@ public class ExceptionHandlerController extends ResponseEntityExceptionHandler {
 		return ResponseEntity
 				.status(HttpStatus.CONFLICT)
 				.body(response);
-	}
-
-	@ExceptionHandler({ UnauthorizedUserException.class })
-	public ResponseEntity<?> unauthorizedUserHandler(UnauthorizedUserException ex) {
-		Map<Object, Object> responseMessage = new HashMap<>();
-		responseMessage.put("status", HttpStatus.UNAUTHORIZED.value());
-		responseMessage.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
-		responseMessage.put("message", ex.getMessage());
-
-		return ResponseEntity
-				.status(HttpStatus.UNAUTHORIZED)
-				.body(responseMessage);
-	}
-
-	@ExceptionHandler({ UserValidationException.class })
-	public ResponseEntity<?> userValidationHandler(UserValidationException ex) {
-		Map<Object, Object> responseMessage = new HashMap<>();
-		responseMessage.put("status", HttpStatus.BAD_REQUEST.value());
-		responseMessage.put("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
-		responseMessage.put("message", ex.getMessage());
-
-		return ResponseEntity
-				.badRequest()
-				.body(responseMessage);
 	}
 }

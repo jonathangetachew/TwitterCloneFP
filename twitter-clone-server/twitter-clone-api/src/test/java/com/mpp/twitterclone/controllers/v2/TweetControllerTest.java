@@ -3,6 +3,7 @@ package com.mpp.twitterclone.controllers.v2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpp.twitterclone.controllers.v2.resourceassemblers.TweetResourceAssembler;
 import com.mpp.twitterclone.controllers.v2.resourceassemblers.TweetResourceAssemblerImpl;
+import com.mpp.twitterclone.enums.TweetSource;
 import com.mpp.twitterclone.model.Tweet;
 import com.mpp.twitterclone.model.tweetcontents.TextContent;
 import com.mpp.twitterclone.services.TweetService;
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -133,7 +135,6 @@ class TweetControllerTest {
 				.andExpect(jsonPath("$._embedded.tweets[0]._links.tweets.href", is(endsWith(TweetController.BASE_URL))));
 
 	}
-
 	@Test
 	void getTopKFavoritedTweetsByUsername_ValidRequest_ListOfTweets() throws Exception {
 		//given
@@ -167,6 +168,190 @@ class TweetControllerTest {
 						is(endsWith(TweetController.BASE_URL + "/user/" + USERNAME + "/top/" + k))))
 				.andExpect(jsonPath("$._embedded.tweets[0]._links.self.href", is(endsWith(TweetController.BASE_URL + "/" + ID))))
 				.andExpect(jsonPath("$._embedded.tweets[0]._links.tweets.href", is(endsWith(TweetController.BASE_URL))));
+
+	}
+
+	@Test
+	void getAllTweetsBySource_ValidRequest_ListOfTweets() throws Exception {
+		//given
+		Tweet tweet1 = Tweet.builder().id(ID).owner(USERNAME)
+				.content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT))).source(TweetSource.MOBILE).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").owner(USERNAME)
+				.content(Arrays.asList(new TextContent("World"))).source(TweetSource.WEB).build();
+
+		List<Tweet> sentTweets = Arrays.asList(tweet1, tweet2);
+
+		when(tweetService.findAll()).thenReturn(sentTweets);
+
+		//when
+		mockMvc.perform(get(TweetController.BASE_URL + "/source/" + TweetSource.MOBILE)
+				.contentType(MediaType.APPLICATION_JSON))
+				//then
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+				// Test Content
+				.andExpect(jsonPath("$._embedded.tweets", hasSize(1)))
+				.andExpect(jsonPath("$._embedded.tweets[0].id", is(ID)))
+				.andExpect(jsonPath("$._embedded.tweets[0].owner", is(USERNAME)))
+				.andExpect(jsonPath("$._embedded.tweets[0].source", is(TweetSource.MOBILE.toString())))
+				.andExpect(jsonPath("$._embedded.tweets[0].content", hasSize(1)))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].type", is("text")))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].data", is(TWEET_TEXT_CONTENT)))
+				// Test Links
+				.andExpect(jsonPath("$._links.self.href",
+						is(endsWith(TweetController.BASE_URL + "/source/" + TweetSource.MOBILE))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.self.href", is(endsWith(TweetController.BASE_URL + "/" + ID))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.tweets.href", is(endsWith(TweetController.BASE_URL))));
+
+	}
+
+	@Test
+	void getKOldestTweets_ValidRequest_ListOfTweets() throws Exception {
+		//given
+		int k = 2;
+
+		Tweet tweet1 = Tweet.builder().id(ID).owner(USERNAME)
+				.content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT))).source(TweetSource.MOBILE).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").owner(USERNAME)
+				.content(Arrays.asList(new TextContent("World"))).source(TweetSource.WEB).build();
+
+		List<Tweet> sentTweets = Arrays.asList(tweet1, tweet2);
+
+		when(tweetService.findAll()).thenReturn(sentTweets);
+
+		//when
+		mockMvc.perform(get(TweetController.BASE_URL + "/old/" + k)
+				.contentType(MediaType.APPLICATION_JSON))
+				//then
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+				// Test Content
+				.andExpect(jsonPath("$._embedded.tweets", hasSize(2)))
+				.andExpect(jsonPath("$._embedded.tweets[0].id", is(ID)))
+				.andExpect(jsonPath("$._embedded.tweets[0].owner", is(USERNAME)))
+				.andExpect(jsonPath("$._embedded.tweets[0].source", is(TweetSource.MOBILE.toString())))
+				.andExpect(jsonPath("$._embedded.tweets[0].content", hasSize(1)))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].type", is("text")))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].data", is(TWEET_TEXT_CONTENT)))
+				// Test Links
+				.andExpect(jsonPath("$._links.self.href",
+						is(endsWith(TweetController.BASE_URL + "/old/" + k))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.self.href", is(endsWith(TweetController.BASE_URL + "/" + ID))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.tweets.href", is(endsWith(TweetController.BASE_URL))));
+
+	}
+
+	@Test
+	void getLatestTweets_ValidRequest_ListOfTweets() throws Exception {
+		//given
+		int k = 2;
+
+		Tweet tweet1 = Tweet.builder().id(ID).owner(USERNAME)
+				.content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT))).source(TweetSource.MOBILE)
+				.createdAt(LocalDateTime.now()).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").owner(USERNAME)
+				.content(Arrays.asList(new TextContent("World"))).source(TweetSource.WEB)
+				.createdAt(LocalDateTime.now().plusSeconds(10)).build();
+
+		List<Tweet> sentTweets = Arrays.asList(tweet1, tweet2);
+
+		when(tweetService.findAll()).thenReturn(sentTweets);
+
+		//when
+		mockMvc.perform(get(TweetController.BASE_URL + "/new/" + k)
+				.contentType(MediaType.APPLICATION_JSON))
+				//then
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+				// Test Content
+				.andExpect(jsonPath("$._embedded.tweets", hasSize(2)))
+				.andExpect(jsonPath("$._embedded.tweets[0].id", is("tweet2")))
+				.andExpect(jsonPath("$._embedded.tweets[0].owner", is(USERNAME)))
+				.andExpect(jsonPath("$._embedded.tweets[0].source", is(TweetSource.WEB.toString())))
+				.andExpect(jsonPath("$._embedded.tweets[0].content", hasSize(1)))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].type", is("text")))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].data", is("World")))
+				// Test Links
+				.andExpect(jsonPath("$._links.self.href",
+						is(endsWith(TweetController.BASE_URL + "/new/" + k))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.self.href", is(endsWith(TweetController.BASE_URL + "/tweet2"))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.tweets.href", is(endsWith(TweetController.BASE_URL))));
+
+	}
+
+	@Test
+	void getMostRepliedTweets_ValidRequest_ListOfTweets() throws Exception {
+		//given
+		Tweet tweet1 = Tweet.builder().id(ID).owner(USERNAME)
+				.content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT))).source(TweetSource.MOBILE)
+				.createdAt(LocalDateTime.now()).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").owner(USERNAME)
+				.content(Arrays.asList(new TextContent("World"))).source(TweetSource.WEB)
+				.createdAt(LocalDateTime.now().plusSeconds(10)).parentId(ID).build();
+
+		List<Tweet> sentTweets = Arrays.asList(tweet1, tweet2);
+
+		when(tweetService.findAll()).thenReturn(sentTweets);
+
+		//when
+		mockMvc.perform(get(TweetController.BASE_URL + "/mostreplied")
+				.contentType(MediaType.APPLICATION_JSON))
+				//then
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+				// Test Content
+				.andExpect(jsonPath("$._embedded.tweets", hasSize(1)))
+				.andExpect(jsonPath("$._embedded.tweets[0].id", is(ID)))
+				.andExpect(jsonPath("$._embedded.tweets[0].owner", is(USERNAME)))
+				.andExpect(jsonPath("$._embedded.tweets[0].source", is(TweetSource.MOBILE.toString())))
+				.andExpect(jsonPath("$._embedded.tweets[0].content", hasSize(1)))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].type", is("text")))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].data", is(TWEET_TEXT_CONTENT)))
+				// Test Links
+				.andExpect(jsonPath("$._links.self.href",
+						is(endsWith(TweetController.BASE_URL + "/mostreplied" ))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.self.href",
+						is(endsWith(TweetController.BASE_URL + "/" + ID))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.tweets.href",
+						is(endsWith(TweetController.BASE_URL))));
+
+	}
+
+	@Test
+	void getTodayTweets_ValidRequest_ListOfTweets() throws Exception {
+		//given
+		Tweet tweet1 = Tweet.builder().id(ID).owner(USERNAME)
+				.content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT))).source(TweetSource.MOBILE)
+				.createdAt(LocalDateTime.now()).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").owner(USERNAME)
+				.content(Arrays.asList(new TextContent("World"))).source(TweetSource.WEB)
+				.createdAt(LocalDateTime.now().plusDays(-1)).build();
+
+		List<Tweet> sentTweets = Arrays.asList(tweet1, tweet2);
+
+		when(tweetService.findAll()).thenReturn(sentTweets);
+
+		//when
+		mockMvc.perform(get(TweetController.BASE_URL + "/today")
+				.contentType(MediaType.APPLICATION_JSON))
+				//then
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+				// Test Content
+				.andExpect(jsonPath("$._embedded.tweets", hasSize(1)))
+				.andExpect(jsonPath("$._embedded.tweets[0].id", is(ID)))
+				.andExpect(jsonPath("$._embedded.tweets[0].owner", is(USERNAME)))
+				.andExpect(jsonPath("$._embedded.tweets[0].source", is(TweetSource.MOBILE.toString())))
+				.andExpect(jsonPath("$._embedded.tweets[0].content", hasSize(1)))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].type", is("text")))
+				.andExpect(jsonPath("$._embedded.tweets[0].content[0].data", is(TWEET_TEXT_CONTENT)))
+				// Test Links
+				.andExpect(jsonPath("$._links.self.href",
+						is(endsWith(TweetController.BASE_URL + "/today" ))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.self.href",
+						is(endsWith(TweetController.BASE_URL + "/" + ID))))
+				.andExpect(jsonPath("$._embedded.tweets[0]._links.tweets.href",
+						is(endsWith(TweetController.BASE_URL))));
 
 	}
 

@@ -27,10 +27,6 @@ public class Tweet {
 	@Id
 	private String id;
 
-	@NotEmpty(message = "Tweet Message is Required")
-	@Size(min = 1, max = 140, message = "Tweet Message Cannot be More Than 140 Characters")
-	private String text;
-
 	private List<TweetableContent> content;
 
 	@NotEmpty(message = "Username is Required")

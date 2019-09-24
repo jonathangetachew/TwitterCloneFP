@@ -96,7 +96,6 @@ public class TweetMongoService implements TweetService {
 
 		return tweetRepository.findById(oldTweetId)
 				.map(t -> {
-					t.setText(newTweet.getText());
 					t.setContent(newTweet.getContent());
 					t.setRetweetCount(newTweet.getRetweetCount());
 					t.setFavoriteCount(newTweet.getFavoriteCount());

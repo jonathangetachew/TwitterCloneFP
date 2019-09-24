@@ -20,14 +20,17 @@ import java.util.stream.Collectors;
 public class UserFunctions {
 
 	///> Pure Functions
+	// Convert User to Resource
 	public static BiFunction<User, UserResourceAssembler, Resource<User>> convertUserToResource =
 			(user, resourceAssembler) -> resourceAssembler.toResource(user);
 
+	// Convert User(s) to Resource(s)
 	public static BiFunction<List<User>, UserResourceAssembler, List<Resource<User>>> convertUsersToResources =
 			(users, resourceAssembler) -> users.stream()
 					.map(user -> convertUserToResource.apply(user, resourceAssembler))
 					.collect(Collectors.toList());
 
+	// Find Top K Most Followed Users
 	public static BiFunction<List<User>, Long, List<User>> findTopKMostFollowedUsers =
 			(users, k) -> users.stream()
 					.sorted(Comparator.comparing(User::getFollowersCount).reversed())
