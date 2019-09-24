@@ -23,7 +23,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 /**
  * Created by Jonathan on 9/8/2019.
  */
-
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping(value = UserController.BASE_URL, produces = MediaTypes.HAL_JSON_VALUE)
 public class UserController {
