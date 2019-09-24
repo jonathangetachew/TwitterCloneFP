@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.hateoas.Resource;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,6 +21,7 @@ class TweetFunctionsTest {
 	public static final String TWEET_TEXT_CONTENT = "Hello";
 	public static final String USERNAME = "user1";
 	public static final int FAVORITE_COUNT = 5;
+	public static final int REPLY_COUNT = 10;
 
 	TweetResourceAssembler tweetResourceAssembler;
 
@@ -48,7 +50,7 @@ class TweetFunctionsTest {
 	}
 
 	@Test
-	void convertUsersToResources_ListOfUsers_ListOfResources() {
+	void convertTweetsToResources_ListOfTweets_ListOfResources() {
 		//given
 		Tweet tweet1 = Tweet.builder().id(ID).content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT)))
 				.owner(USERNAME).favoriteCount(FAVORITE_COUNT).build();
@@ -74,7 +76,7 @@ class TweetFunctionsTest {
 	}
 
 	@Test
-	void findKMostFollowedUsers_ListOfUsers_KListOfUsers() {
+	void findTopKFavoritedTweets_ListOfTweets_KListOfTweets() {
 		//given
 		Long k = 2L;
 
@@ -93,5 +95,137 @@ class TweetFunctionsTest {
 		assertEquals(ID, returnedTweets.get(0).getId());
 		assertEquals(USERNAME, returnedTweets.get(0).getOwner());
 		assertEquals(FAVORITE_COUNT, returnedTweets.get(0).getFavoriteCount().intValue());
+	}
+
+	@Test
+	void findOldestTweets_ListOfTweets_KListOfTweets() {
+		//given
+		Long k = 2L;
+
+		Tweet tweet1 = Tweet.builder().id(ID).content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT)))
+				.owner(USERNAME).favoriteCount(FAVORITE_COUNT).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner("test")
+				.favoriteCount(3).build();
+
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2);
+
+		//when
+		List<Tweet> returnedTweets = TweetFunctions.findOldestTweets.apply(tweets, k);
+
+		//then
+		assertEquals(k.intValue(), returnedTweets.size());
+		assertEquals(ID, returnedTweets.get(0).getId());
+		assertEquals(USERNAME, returnedTweets.get(0).getOwner());
+		assertEquals(FAVORITE_COUNT, returnedTweets.get(0).getFavoriteCount().intValue());
+	}
+
+	@Test
+	void findTweetsByUsername_ListOfTweets_Username_ListOfTweets() {
+		//given
+		Tweet tweet1 = Tweet.builder().id(ID).content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT)))
+				.owner(USERNAME).favoriteCount(FAVORITE_COUNT).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner("test")
+				.favoriteCount(3).build();
+
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2);
+
+		//when
+		List<Tweet> returnedTweets = TweetFunctions.findTweetsByUsername.apply(tweets, USERNAME);
+
+		//then
+		assertEquals(1, returnedTweets.size());
+		assertEquals(ID, returnedTweets.get(0).getId());
+		assertEquals(USERNAME, returnedTweets.get(0).getOwner());
+		assertEquals(FAVORITE_COUNT, returnedTweets.get(0).getFavoriteCount().intValue());
+	}
+
+	@Test
+	void findKLatestTweets_ListOfTweets_KListOfTweets() {
+		//given
+		Long k = 1L;
+
+		Tweet tweet1 = Tweet.builder().id(ID).content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT)))
+				.owner(USERNAME).favoriteCount(FAVORITE_COUNT).createdAt(LocalDateTime.now()).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner("test")
+				.favoriteCount(3).createdAt(LocalDateTime.now().plusSeconds(10)).build();
+
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2);
+
+		//when
+		List<Tweet> returnedTweets = TweetFunctions.findKLatestTweets.apply(tweets, k);
+
+		//then
+		assertEquals(k.intValue(), returnedTweets.size());
+		assertEquals("tweet2", returnedTweets.get(0).getId());
+		assertEquals("test", returnedTweets.get(0).getOwner());
+		assertEquals(3, returnedTweets.get(0).getFavoriteCount().intValue());
+	}
+
+	@Test
+	void findMostRepliedTweetsByParentID_ListOfTweets_ListOfTweets() {
+		//given
+		Tweet tweet1 = Tweet.builder().id(ID).content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT)))
+				.owner(USERNAME).favoriteCount(FAVORITE_COUNT).replyCount(REPLY_COUNT).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner("test")
+				.favoriteCount(3).replyCount(5).parentId(ID).build();
+
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2);
+
+		//when
+		List<Tweet> returnedTweets = TweetFunctions.findMostRepliedTweetsByParentID.apply(tweets);
+
+		//then
+		assertEquals(1, returnedTweets.size());
+		assertEquals(ID, returnedTweets.get(0).getId());
+		assertEquals(USERNAME, returnedTweets.get(0).getOwner());
+		assertEquals(FAVORITE_COUNT, returnedTweets.get(0).getFavoriteCount().intValue());
+		assertEquals(REPLY_COUNT, returnedTweets.get(0).getReplyCount().intValue());
+	}
+
+	@Test
+	void findRepliesByTweet_ListOfTweets_Tweet_ListOfTweets() {
+		//given
+		Tweet tweet1 = Tweet.builder().id(ID).content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT)))
+				.owner(USERNAME).favoriteCount(FAVORITE_COUNT).replyCount(REPLY_COUNT).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner("test")
+				.favoriteCount(3).replyCount(5).build();
+		Tweet tweet3 = Tweet.builder().id("tweet3").content(Arrays.asList(new TextContent("MPP"))).owner("test")
+				.favoriteCount(4).replyCount(7).parentId(ID).build();
+
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2,tweet3);
+
+		//when
+		List<Tweet> returnedTweets = TweetFunctions.findRepliesByTweet.apply(tweets, tweet1);
+
+		//then
+		assertEquals(1, returnedTweets.size());
+		assertEquals(ID, returnedTweets.get(0).getParentId());
+		assertEquals("tweet3", returnedTweets.get(0).getId());
+		assertEquals("test", returnedTweets.get(0).getOwner());
+		assertEquals(4, returnedTweets.get(0).getFavoriteCount().intValue());
+		assertEquals(7, returnedTweets.get(0).getReplyCount().intValue());
+	}
+
+	@Test
+	void findTodayTweets_ListOfTweets_ListOfTweets() {
+		//given
+		Tweet tweet1 = Tweet.builder().id(ID).content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT)))
+				.owner(USERNAME).favoriteCount(FAVORITE_COUNT).replyCount(REPLY_COUNT).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner("test")
+				.favoriteCount(3).replyCount(5).build();
+		Tweet tweet3 = Tweet.builder().id("tweet3").content(Arrays.asList(new TextContent("MPP"))).owner("test")
+				.favoriteCount(4).replyCount(7).parentId(ID).createdAt(LocalDateTime.now().plusDays(-2)).build();
+
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2,tweet3);
+
+		//when
+		List<Tweet> returnedTweets = TweetFunctions.findTodayTweets.apply(tweets);
+
+		//then
+		assertEquals(2, returnedTweets.size());
+		assertEquals("tweet2", returnedTweets.get(0).getId());
+		assertEquals("test", returnedTweets.get(0).getOwner());
+		assertEquals(3, returnedTweets.get(0).getFavoriteCount().intValue());
+		assertEquals(5, returnedTweets.get(0).getReplyCount().intValue());
 	}
 }

@@ -3,10 +3,11 @@ package com.mpp.twitterclone.controllers.v2.functions;
 import com.mpp.twitterclone.controllers.v2.UserController;
 import com.mpp.twitterclone.controllers.v2.resourceassemblers.UserResourceAssembler;
 import com.mpp.twitterclone.controllers.v2.resourceassemblers.UserResourceAssemblerImpl;
+import com.mpp.twitterclone.model.Tweet;
 import com.mpp.twitterclone.model.User;
+import com.mpp.twitterclone.model.tweetcontents.TextContent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resource;
 
 import java.util.Arrays;
@@ -69,7 +70,7 @@ class UserFunctionsTest {
 	}
 
 	@Test
-	void findKMostFollowedUsers_ListOfUsers_KListOfUsers() {
+	void findTopKMostFollowedUsers_ListOfUsers_KListOfUsers() {
 		//given
 		Long k = 2L;
 
@@ -79,10 +80,92 @@ class UserFunctionsTest {
 		List<User> users = Arrays.asList(user1, user2);
 
 		//when
-		List<User> returnedUsers = UserFunctions.findKMostFollowedUsers.apply(users, k);
+		List<User> returnedUsers = UserFunctions.findTopKMostFollowedUsers.apply(users, k);
 
 		//then
 		assertEquals(k.intValue(), returnedUsers.size());
+		assertEquals(ID, returnedUsers.get(0).getId());
+		assertEquals(USERNAME, returnedUsers.get(0).getUsername());
+		assertEquals(FOLLOWERS_COUNT, returnedUsers.get(0).getFollowersCount().intValue());
+	}
+
+	@Test
+	void findTopKMostPostingUsers_ListOfTweets_ListOfUsers_KListOfUsers() {
+		//given
+		Long k = 2L;
+
+		User user1 = User.builder().id(ID).username(USERNAME).followersCount(FOLLOWERS_COUNT).build();
+		User user2 = User.builder().id("user2").username("doe").followersCount(3).build();
+
+		Tweet tweet1 = Tweet.builder().id("tweet1").content(Arrays.asList(new TextContent("Hello")))
+				.owner(USERNAME).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner(USERNAME)
+				.favoriteCount(3).build();
+		Tweet tweet3 = Tweet.builder().id("tweet3").content(Arrays.asList(new TextContent("World"))).owner("doe")
+				.favoriteCount(3).build();
+
+		List<User> users = Arrays.asList(user1, user2);
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2, tweet3);
+
+		//when
+		List<User> returnedUsers = UserFunctions.findTopKMostPostingUsers.apply(tweets, users, k);
+
+		//then
+		assertEquals(k.intValue(), returnedUsers.size());
+		assertEquals(ID, returnedUsers.get(0).getId());
+		assertEquals(USERNAME, returnedUsers.get(0).getUsername());
+		assertEquals(FOLLOWERS_COUNT, returnedUsers.get(0).getFollowersCount().intValue());
+	}
+
+	@Test
+	void findTopKMostFollowedRepliers_ListOfTweets_ListOfUsers_KListOfUsers() {
+		//given
+		Long k = 2L;
+
+		User user1 = User.builder().id(ID).username(USERNAME).followersCount(FOLLOWERS_COUNT).build();
+		User user2 = User.builder().id("user2").username("doe").followersCount(3).build();
+
+		Tweet tweet1 = Tweet.builder().id("tweet1").content(Arrays.asList(new TextContent("Hello")))
+				.owner(USERNAME).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner(USERNAME)
+				.favoriteCount(3).parentId("tweet1").build();
+		Tweet tweet3 = Tweet.builder().id("tweet3").content(Arrays.asList(new TextContent("World"))).owner("doe")
+				.favoriteCount(3).parentId("tweet1").build();
+
+		List<User> users = Arrays.asList(user1, user2);
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2, tweet3);
+
+		//when
+		List<User> returnedUsers = UserFunctions.findTopKMostFollowedRepliers.apply(tweets, users, tweet1, k);
+
+		//then
+		assertEquals(k.intValue(), returnedUsers.size());
+		assertEquals(ID, returnedUsers.get(0).getId());
+		assertEquals(USERNAME, returnedUsers.get(0).getUsername());
+		assertEquals(FOLLOWERS_COUNT, returnedUsers.get(0).getFollowersCount().intValue());
+	}
+
+	@Test
+	void findRepliersOfGivenTweet_ListOfTweets_ListOfUsers_KListOfUsers() {
+		//given
+		User user1 = User.builder().id(ID).username(USERNAME).followersCount(FOLLOWERS_COUNT).build();
+		User user2 = User.builder().id("user2").username("doe").followersCount(3).build();
+
+		Tweet tweet1 = Tweet.builder().id("tweet1").content(Arrays.asList(new TextContent("Hello")))
+				.owner(USERNAME).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner(USERNAME)
+				.favoriteCount(3).parentId("tweet1").build();
+		Tweet tweet3 = Tweet.builder().id("tweet3").content(Arrays.asList(new TextContent("World"))).owner("doe")
+				.favoriteCount(3).parentId("tweet1").build();
+
+		List<User> users = Arrays.asList(user1, user2);
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2, tweet3);
+
+		//when
+		List<User> returnedUsers = UserFunctions.findRepliersOfGivenTweet.apply(tweets, users, tweet1);
+
+		//then
+		assertEquals(2, returnedUsers.size());
 		assertEquals(ID, returnedUsers.get(0).getId());
 		assertEquals(USERNAME, returnedUsers.get(0).getUsername());
 		assertEquals(FOLLOWERS_COUNT, returnedUsers.get(0).getFollowersCount().intValue());

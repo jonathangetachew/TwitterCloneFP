@@ -56,7 +56,7 @@ public class UserController {
 	@GetMapping("/top/{k}")
 	public Resources<Resource<User>> getTopKMostFollowedUsers(@PathVariable @Valid Long k) {
 		List<Resource<User>> users = UserFunctions.convertUsersToResources.apply(
-				UserFunctions.findKMostFollowedUsers.apply(userService.findAll(), k),
+				UserFunctions.findTopKMostFollowedUsers.apply(userService.findAll(), k),
 				userResourceAssembler
 		);
 
