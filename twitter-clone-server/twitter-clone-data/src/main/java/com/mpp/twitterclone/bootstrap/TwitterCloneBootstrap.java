@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -101,13 +102,23 @@ public class TwitterCloneBootstrap implements ApplicationListener<ContextRefresh
 		Tweet tweet2= Tweet.builder().id("test2").owner("yadir").retweetCount(1000).favoriteCount(100000).source(TweetSource.MOBILE)
 				.content(Arrays.asList(new TextContent("Hello Maharishi"),
 						new VideoContent("https://youtu.be/Foe5i_4ehr8"))).build();
-		Tweet tweet3 = Tweet.builder().owner("john").retweetCount(999).favoriteCount(696969).source(TweetSource.MOBILE)
+		Tweet tweet3 = Tweet.builder().owner("john").retweetCount(999).favoriteCount(696969).source(TweetSource.WEB)
 				.content(Arrays.asList(new TextContent("I Love Pizza"))).build();
-		Tweet tweet4 = Tweet.builder().owner("yadir").retweetCount(100).favoriteCount(12).source(TweetSource.MOBILE)
-				.content(Arrays.asList(new TextContent("Welcome to Twitter Clone"))).build();
+		Tweet tweet4 = Tweet.builder().owner("yadir").retweetCount(100).favoriteCount(12).source(TweetSource.WEB)
+				.content(Arrays.asList(new TextContent("Welcome to Twitter Clone")))
+				.createdAt(LocalDateTime.now().plusDays(4)).build();
+		Tweet tweet5 = Tweet.builder().owner("john").retweetCount(10000).favoriteCount(1000).source(TweetSource.MOBILE)
+				.content(Arrays.asList(new TextContent("Hello World"))).createdAt(LocalDateTime.now().plusDays(2)).build();
+		Tweet tweet6 = Tweet.builder().owner("aka213").retweetCount(1000).favoriteCount(100000).source(TweetSource.MOBILE)
+				.content(Arrays.asList(new TextContent("Maharishi"))).build();
+		Tweet tweet7 = Tweet.builder().owner("davaa321").retweetCount(999).favoriteCount(696969).source(TweetSource.MOBILE)
+				.content(Arrays.asList(new TextContent("I Love Money"))).build();
+		Tweet tweet8 = Tweet.builder().owner("edgar123").retweetCount(100).favoriteCount(12).source(TweetSource.WEB)
+				.content(Arrays.asList(new TextContent("Welcome to Twitter Clone FP")))
+				.createdAt(LocalDateTime.now().plusDays(3)).build();
 
 		// Save Tweets
-		tweetRepository.saveAll(Arrays.asList(tweet1, tweet2, tweet3, tweet4));
+		tweetRepository.saveAll(Arrays.asList(tweet1, tweet2, tweet3, tweet4, tweet5, tweet6, tweet7, tweet8));
 	}
 
 	private void loadUsers() {
