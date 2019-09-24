@@ -9,7 +9,8 @@ const history = createBrowserHistory();
 const width = 250;
 
 const Page = (props) => {
-  const { Component, data} = props;
+  const { Component, data, route} = props;
+  console.log("ROUTE", route)
   return (
     <div
       style={{
@@ -47,7 +48,7 @@ const Page = (props) => {
             overflow: "auto"
           }}
         >
-          {Component ? <Component route={data.pathname}/> : null}
+          {Component ? <Component route={data.pathname} index={route.key}/> : null}
         </div>
       </div>
     </div>
