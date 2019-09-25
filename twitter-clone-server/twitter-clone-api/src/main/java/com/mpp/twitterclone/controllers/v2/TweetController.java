@@ -168,6 +168,35 @@ public class TweetController {
 				linkTo(methodOn(TweetController.class).getTweetReplies(id)).withSelfRel());
 	}
 
+	//Davaa start
+	@ApiOperation(value = "Find Tweets by date",
+					notes = "It can be done by any user.")
+	@GetMapping("/bydate/{d}")
+	public Resources<Resource<Tweet>> getTweetsByDate(@PathVariable @Valid String d) {
+
+		List<Resource<Tweet>> tweets = TweetFunctions.convertTweetsToResources.apply(
+				TweetFunctions.findTweetsByDate.apply(tweetService.findAll(),d),
+				tweetResourceAssembler
+			);
+
+		return new Resources<>(tweets,
+				linkTo(methodOn(TweetController.class).getTweetsByDate(d)).withSelfRel());
+	}	searchTweetsByKeyword
+
+	@ApiOperation(value = "Search tweets by keyword",
+					notes = "It can be done by any user.")
+	@GetMapping("/search/{keyword}")
+	public Resources<Resource<Tweet>> searchTweetsByKeyword(@PathVariable @Valid String keyword) {
+
+		List<Resource<Tweet>> tweets = TweetFunctions.convertTweetsToResources.apply(
+				TweetFunctions.searchTweetsByKeyword.apply(tweetService.findAll(),keyword),
+				tweetResourceAssembler
+			);
+
+		return new Resources<>(tweets,
+				linkTo(methodOn(TweetController.class).searchTweetsByKeyword(keyword)).withSelfRel());
+	}
+	//Davaa end
 	///> Post Mappings
 	@ApiOperation(value = "Create a Tweet",
 					notes = "This operation can only be done by an authenticated user.")

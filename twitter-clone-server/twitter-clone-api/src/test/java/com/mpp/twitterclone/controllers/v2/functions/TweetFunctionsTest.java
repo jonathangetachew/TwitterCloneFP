@@ -249,4 +249,58 @@ class TweetFunctionsTest {
 		assertEquals(3, returnedTweets.get(0).getFavoriteCount().intValue());
 		assertEquals(5, returnedTweets.get(0).getReplyCount().intValue());
 	}
+	
+	@Test
+	void findGivenDateTweets_ListOfTweets_ListOfTweets() {
+		//given
+		LocalDateTime dt1 = LocalDateTime.parse("2019-09-25T08:00:00");
+		LocalDateTime td2 = LocalDateTime.parse("2019-09-24T08:00:00");
+		LocalDateTime td2 = LocalDateTime.parse("2019-09-23T08:00:00");
+
+		Tweet tweet1 = Tweet.builder().id("t1").content(Arrays.asList(new TextContent("MPP"))).owner("test")
+				.favoriteCount(4).replyCount(7).parentId(ID).createdAt(dt1).build();
+		Tweet tweet2 = Tweet.builder().id("t2").content(Arrays.asList(new TextContent("MPP"))).owner("test")
+				.favoriteCount(4).replyCount(7).parentId(ID).createdAt(dt2).build();
+		Tweet tweet3 = Tweet.builder().id("t3").content(Arrays.asList(new TextContent("MPP"))).owner("test")
+				.favoriteCount(4).replyCount(7).parentId(ID).createdAt(dt2).build();
+
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2,tweet3);
+
+		//when
+		List<Tweet> returnedTweets = TweetFunctions.findTweetsByDate.apply(tweets, dt1.toLocalDate());
+
+		//then
+		assertEquals(1, returnedTweets.size());
+		assertEquals("t1", returnedTweets.get(0).getId());
+		assertEquals("test", returnedTweets.get(0).getOwner());
+		assertEquals(4, returnedTweets.get(0).getFavoriteCount().intValue());
+		assertEquals(7, returnedTweets.get(0).getReplyCount().intValue());
+	}
+
+	@Test
+	void searchTweetsByKeyword_ListOfTweets_ListOfTweets() {
+		//given
+		LocalDateTime dt1 = LocalDateTime.parse("2019-09-25T08:00:00");
+		LocalDateTime td2 = LocalDateTime.parse("2019-09-24T08:00:00");
+		LocalDateTime td2 = LocalDateTime.parse("2019-09-23T08:00:00");
+
+		Tweet tweet1 = Tweet.builder().id("t1").content(Arrays.asList(new TextContent("Search tweet is here. MPP is over"))).owner("test")
+				.favoriteCount(4).replyCount(7).parentId(ID).createdAt(dt1).build();
+		Tweet tweet2 = Tweet.builder().id("t2").content(Arrays.asList(new TextContent("Tweet about MPP class"))).owner("test")
+				.favoriteCount(4).replyCount(7).parentId(ID).createdAt(dt2).build();
+		Tweet tweet3 = Tweet.builder().id("t3").content(Arrays.asList(new TextContent("Tweet about party"))).owner("test")
+				.favoriteCount(4).replyCount(7).parentId(ID).createdAt(dt2).build();
+
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2,tweet3);
+
+		//when
+		List<Tweet> returnedTweets = TweetFunctions.searchTweetsByKeyword.apply(tweets, "MPP");
+
+		//then
+		assertEquals(2, returnedTweets.size());
+		assertEquals("t1", returnedTweets.get(0).getId());
+		assertEquals("test", returnedTweets.get(0).getOwner());
+		assertEquals(4, returnedTweets.get(0).getFavoriteCount().intValue());
+		assertEquals(7, returnedTweets.get(0).getReplyCount().intValue());
+	}
 }

@@ -91,4 +91,18 @@ public class TweetFunctions {
 					.filter(t -> t.getCreatedAt().toLocalDate().equals(LocalDate.now()))
 					.sorted(Comparator.comparing(Tweet::getCreatedAt,Comparator.reverseOrder()))
 					.collect(Collectors.toList());
+
+	// Davaa Find Tweets by date
+	public static BiFunction<List<Tweet>, LocalDate, List<Tweet>> findTweetsByDate =
+			(tweets, givenDate) -> tweets.stream()
+					.filter(t -> t.getCreatedAt().equals(givenDate))
+					.sorted(Comparator.comparing(Tweet::getCreatedAt,Comparator.reverseOrder()))
+					.collect(Collectors.toList());
+
+	// Davaa Search Tweets by keywork
+	public static BiFunction<List<Tweet>, String, List<Tweet>> searchTweetsByKeyword =
+			(tweets, keyword) ->	tweets.stream()
+					.filter(t->t.givenTweet().contains(keyword))
+					.sorted(Comparator.comparing(Tweet::getCreatedAt).reversed())
+					.collect(Collectors.toList());
 }
