@@ -39,7 +39,7 @@ public class SwaggerConfig {
 
 		return new ApiInfo(
 				"TwitterClone",
-				"Twitter Clone Platform for our MPP Project 1",
+				"Twitter Clone Platform, Implemented Using Functional Programming Paradigm, for our MPP Project 2",
 				"1.0",
 				"Terms of Service: Use it however you like, just don't sue us. :)",
 				contact,

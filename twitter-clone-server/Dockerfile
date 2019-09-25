@@ -1,4 +1,4 @@
-    FROM openjdk:11
-ADD twitter-clone-api/target/twitter-clone-v1.jar twitter-clone-v1.jar
+FROM openjdk
+ADD twitter-clone-api/target/twitter-clone-server-v2.jar twitter-clone-server-v2.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "twitter-clone-v1.jar"]
+ENTRYPOINT ["java", "-jar", "twitter-clone-server-v2.jar"]

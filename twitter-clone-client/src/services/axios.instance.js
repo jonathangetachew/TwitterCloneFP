@@ -3,9 +3,22 @@ const baseURL = "http://localhost:8080/api/v2";
 const options = {
   baseURL,
   timeout: 1000,
-  headers: {
-    "Content-Type": "application/json",
+  headers: { 
+    "Content-Type": "application/json"
   }
 };
 
-export default axios.create(options);
+const server = axios.create(options);
+server.interceptors.response.use(
+  response => {
+    // do something with the response data
+    console.log("Response was received", response);
+
+    return response.data;
+  },
+  error => {
+    // handle the response error
+    return Promise.reject(error);
+  }
+);
+export default server;

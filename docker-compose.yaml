@@ -1,0 +1,18 @@
+version: "3"
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - 27017
+  backend:
+    build: ./twitter-clone-server/
+    ports:
+      - 8080:8080
+    links:
+      - mongodb
+  frontend:
+    build: ./twitter-clone-client/
+    ports:
+      - 3000:3000
+    links:
+      - backend
