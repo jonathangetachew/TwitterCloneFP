@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.hateoas.Resource;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -228,8 +229,10 @@ class TweetFunctionsTest {
 	}
 
 	@Test
-	void findTodayTweets_ListOfTweets_ListOfTweets() {
+	void findGivenDateTweets_ListOfTweets_ListOfTweets() {
 		//given
+		LocalDate date = LocalDate.now();
+
 		Tweet tweet1 = Tweet.builder().id(ID).content(Arrays.asList(new TextContent(TWEET_TEXT_CONTENT)))
 				.owner(USERNAME).favoriteCount(FAVORITE_COUNT).replyCount(REPLY_COUNT).build();
 		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner("test")
@@ -240,13 +243,10 @@ class TweetFunctionsTest {
 		List<Tweet> tweets = Arrays.asList(tweet1, tweet2,tweet3);
 
 		//when
-		List<Tweet> returnedTweets = TweetFunctions.findTodayTweets.apply(tweets);
+		List<Tweet> returnedTweets = TweetFunctions.findGivenDateTweets.apply(tweets, date);
 
 		//then
 		assertEquals(2, returnedTweets.size());
-		assertEquals("tweet2", returnedTweets.get(0).getId());
-		assertEquals("test", returnedTweets.get(0).getOwner());
-		assertEquals(3, returnedTweets.get(0).getFavoriteCount().intValue());
-		assertEquals(5, returnedTweets.get(0).getReplyCount().intValue());
+		assertEquals(date.getDayOfMonth(), returnedTweets.get(0).getCreatedAt().getDayOfMonth());
 	}
 }

@@ -86,9 +86,9 @@ public class TweetFunctions {
 					.collect(Collectors.toList());
 
 	// Find Today's Tweets
-	public static Function<List<Tweet>, List<Tweet>> findTodayTweets =
-			(tweets) -> tweets.stream()
-					.filter(t -> t.getCreatedAt().toLocalDate().equals(LocalDate.now()))
+	public static BiFunction<List<Tweet>, LocalDate, List<Tweet>> findGivenDateTweets =
+			(tweets, date) -> tweets.stream()
+					.filter(t -> t.getCreatedAt().toLocalDate().equals(date))
 					.sorted(Comparator.comparing(Tweet::getCreatedAt,Comparator.reverseOrder()))
 					.collect(Collectors.toList());
 }
