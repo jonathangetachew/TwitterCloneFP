@@ -12,6 +12,7 @@ import org.springframework.hateoas.Resource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -169,5 +170,28 @@ class UserFunctionsTest {
 		assertEquals(ID, returnedUsers.get(0).getId());
 		assertEquals(USERNAME, returnedUsers.get(0).getUsername());
 		assertEquals(FOLLOWERS_COUNT, returnedUsers.get(0).getFollowersCount().intValue());
+	}
+
+	@Test
+	void findTopKMostTweetedUsersWithCount_ListOfUsers_KListOfUsers() {
+		//given
+		Long k = 2L;
+		User user1 = User.builder().id(ID).username(USERNAME).build();
+		User user2 = User.builder().id("user2").username("doe").build();
+		Tweet tweet1 = Tweet.builder().id("tweet1").content(Arrays.asList(new TextContent("Hello")))
+				.owner(USERNAME).build();
+		Tweet tweet2 = Tweet.builder().id("tweet2").content(Arrays.asList(new TextContent("World"))).owner(USERNAME)
+				.favoriteCount(3).parentId("tweet1").build();
+		Tweet tweet3 = Tweet.builder().id("tweet3").content(Arrays.asList(new TextContent("World"))).owner("doe")
+				.favoriteCount(3).parentId("tweet1").build();
+		List<User> users = Arrays.asList(user1, user2);
+		List<Tweet> tweets = Arrays.asList(tweet1, tweet2, tweet3);
+		//when
+		Map<User, Long> returnedUsers = UserFunctions.findTopKMostTweetsWithCount.apply(tweets, users, k);
+		User firstUser = returnedUsers.keySet().iterator().next();
+		//then
+		assertEquals(k.intValue(), returnedUsers.size());
+		assertEquals(ID, firstUser.getId());
+		assertEquals(USERNAME, firstUser.getUsername());
 	}
 }

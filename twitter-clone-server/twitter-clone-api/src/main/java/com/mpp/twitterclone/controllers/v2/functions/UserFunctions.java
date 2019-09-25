@@ -7,10 +7,9 @@ import com.mpp.twitterclone.model.Tweet;
 import com.mpp.twitterclone.model.User;
 import org.springframework.hateoas.Resource;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -70,4 +69,26 @@ public class UserFunctions {
 					.map(Optional::get)
 					.distinct()
 					.collect(Collectors.toList());
+
+	//This two for UserFunctions
+// Find Top K Most Tweeted Users
+//	public static BiFunction<List<User>, Long, List<User>> findTopKMostTweetedUsers =
+//			(users, k) -> users.stream()
+//					.sorted(Comparator.comparing(User::getTweetsCount).reversed())
+//					.limit(k)
+//					.collect(Collectors.toList());
+
+	// Find Top K Most Tweeted Users with Count
+	public static TriFunction<List<Tweet>,List<User>, Long, Map<User, Long>> findTopKMostTweetsWithCount =
+			(tweets, users, k) ->
+					tweets.stream()
+							.map(tweet -> tweet.getOwner())
+							.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+							.entrySet().stream()
+							.sorted((m1, m2)-> (int) (m2.getValue()-m1.getValue()))
+							.limit(k)
+							.collect(Collectors.toMap(
+									e -> users.stream().filter(user -> user.getUsername()==e.getKey())
+											.findFirst().get(),
+									e -> e.getValue(), (v1, v2) -> v1, LinkedHashMap::new));
 }

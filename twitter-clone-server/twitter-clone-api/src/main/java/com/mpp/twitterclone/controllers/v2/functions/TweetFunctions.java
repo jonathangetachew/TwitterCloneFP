@@ -3,6 +3,7 @@ package com.mpp.twitterclone.controllers.v2.functions;
 import com.mpp.twitterclone.controllers.v2.resourceassemblers.TweetResourceAssembler;
 import com.mpp.twitterclone.datatypes.QuadFunction;
 import com.mpp.twitterclone.datatypes.TriFunction;
+import com.mpp.twitterclone.enums.Gender;
 import com.mpp.twitterclone.enums.TweetSource;
 import com.mpp.twitterclone.model.Tweet;
 import com.mpp.twitterclone.model.User;
@@ -13,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -92,17 +94,28 @@ public class TweetFunctions {
 					.sorted(Comparator.comparing(Tweet::getCreatedAt,Comparator.reverseOrder()))
 					.collect(Collectors.toList());
 
-	// Davaa Find Tweets by date
-	public static BiFunction<List<Tweet>, LocalDate, List<Tweet>> findTweetsByDate =
-			(tweets, givenDate) -> tweets.stream()
-					.filter(t -> t.getCreatedAt().equals(givenDate))
-					.sorted(Comparator.comparing(Tweet::getCreatedAt,Comparator.reverseOrder()))
-					.collect(Collectors.toList());
-
+	//Davaa 11:22 AM
 	// Davaa Search Tweets by keywork
+	public static BiPredicate<Tweet, String> hasKeyword = (t, k) ->
+			t.getContent().stream().
+					anyMatch(c->c.getData().toString().contains(k));
+
 	public static BiFunction<List<Tweet>, String, List<Tweet>> searchTweetsByKeyword =
-			(tweets, keyword) ->	tweets.stream()
-					.filter(t->t.givenTweet().contains(keyword))
+			(tweets, keyword) ->    tweets.stream()
+					.filter(t->hasKeyword.test(t,keyword))
 					.sorted(Comparator.comparing(Tweet::getCreatedAt).reversed())
 					.collect(Collectors.toList());
+
+	//This is for TweetFunctions
+	// Find Tweets by Gender
+	public static TriFunction<List<Tweet>,List<User>, Gender, List<Tweet>> findTweetsByGender =
+			(tweets, users, gender) -> tweets.stream()
+					.collect(Collectors.groupingBy(Tweet::getOwner))
+					.entrySet().stream()
+					.filter(entry -> users.stream().filter(
+							u->u.getUsername() == entry.getKey())
+							.findFirst().get().getGender() == gender)
+					.flatMap(entry -> entry.getValue().stream())
+					.collect(Collectors.toList());
+
 }
