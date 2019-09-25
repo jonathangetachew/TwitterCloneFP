@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,7 +144,7 @@ public class TweetController {
 	public Resources<Resource<Tweet>> getTodayTweets() {
 
 		List<Resource<Tweet>> tweets = TweetFunctions.convertTweetsToResources.apply(
-				TweetFunctions.findTodayTweets.apply(tweetService.findAll()),
+				TweetFunctions.findGivenDateTweets.apply(tweetService.findAll(), LocalDate.now()),
 				tweetResourceAssembler
 			);
 
