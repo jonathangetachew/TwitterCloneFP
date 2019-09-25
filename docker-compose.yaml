@@ -4,7 +4,7 @@ services:
     image: mongo
     ports:
       - 27017
-  app:
+  backend:
     build: ./twitter-clone-server/
     ports:
       - 8080:8080
